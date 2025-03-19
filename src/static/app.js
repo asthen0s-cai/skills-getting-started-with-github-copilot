@@ -3,6 +3,7 @@ document.addEventListener("DOMContentLoaded", () => {
   const activitySelect = document.getElementById("activity");
   const signupForm = document.getElementById("signup-form");
   const messageDiv = document.getElementById("message");
+  const participantsList = document.getElementById("participants-list");
 
   // Function to fetch activities from API
   async function fetchActivities() {
@@ -12,6 +13,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
       // Clear loading message
       activitiesList.innerHTML = "";
+      participantsList.innerHTML = "";
 
       // Populate activities list
       Object.entries(activities).forEach(([name, details]) => {
@@ -25,6 +27,7 @@ document.addEventListener("DOMContentLoaded", () => {
           <p>${details.description}</p>
           <p><strong>Schedule:</strong> ${details.schedule}</p>
           <p><strong>Availability:</strong> ${spotsLeft} spots left</p>
+          <p><strong>Participants:</strong> ${details.participants.join(", ") || "None"}</p>
         `;
 
         activitiesList.appendChild(activityCard);
@@ -34,9 +37,19 @@ document.addEventListener("DOMContentLoaded", () => {
         option.value = name;
         option.textContent = name;
         activitySelect.appendChild(option);
+
+        // Populate participants list
+        const participantsCard = document.createElement("div");
+        participantsCard.className = "activity-card";
+        participantsCard.innerHTML = `
+          <h4>${name}</h4>
+          <p><strong>Participants:</strong> ${details.participants.join(", ") || "None"}</p>
+        `;
+        participantsList.appendChild(participantsCard);
       });
     } catch (error) {
       activitiesList.innerHTML = "<p>Failed to load activities. Please try again later.</p>";
+      participantsList.innerHTML = "<p>Failed to load participants. Please try again later.</p>";
       console.error("Error fetching activities:", error);
     }
   }
@@ -62,6 +75,7 @@ document.addEventListener("DOMContentLoaded", () => {
         messageDiv.textContent = result.message;
         messageDiv.className = "success";
         signupForm.reset();
+        fetchActivities(); // Refresh activities and participants list
       } else {
         messageDiv.textContent = result.detail || "An error occurred";
         messageDiv.className = "error";
